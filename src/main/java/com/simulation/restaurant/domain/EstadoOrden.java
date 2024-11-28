@@ -1,4 +1,4 @@
-package main.java.com.simulation.restaurant.domain;
+package com.simulation.restaurant.domain;
 
 public enum EstadoOrden {
     PENDIENTE,

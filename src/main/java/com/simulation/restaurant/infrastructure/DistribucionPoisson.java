@@ -1,4 +1,4 @@
-package main.java.com.simulation.restaurant.infrastructure;
+package com.simulation.restaurant.infrastructure;
 
 import java.util.Random;
 

@@ -1,4 +1,4 @@
-package main.java.com.simulation.restaurant.domain;
+package com.simulation.restaurant.domain;
 
 import java.util.Queue;
 
@@ -6,12 +6,10 @@ public class Mesero {
     private final int id;
     private boolean ocupado;
     private Comensal comensalActual;
-    private final Queue<Orden> bufferOrdenes;
 
     public Mesero(int id, Queue<Orden> bufferOrdenes) {
         this.id = id;
         this.ocupado = false;
-        this.bufferOrdenes = bufferOrdenes;
     }
 
     public int getId() {
@@ -27,13 +25,16 @@ public class Mesero {
         this.ocupado = true;
     }
 
-    public void generarOrden() {
+    public Orden generarOrden(int idMesa) {
         if (comensalActual != null) {
-            Orden orden = new Orden(comensalActual);
-            bufferOrdenes.add(orden);
+            Orden orden = new Orden(comensalActual, idMesa);
             comensalActual.setOrden(orden);
             this.ocupado = false;
+
+            return orden;
         }
+
+        return null;
     }
 
     @Override

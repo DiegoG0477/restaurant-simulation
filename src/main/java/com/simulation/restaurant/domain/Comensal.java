@@ -1,9 +1,10 @@
-package main.java.com.simulation.restaurant.domain;
+package com.simulation.restaurant.domain;
 
 public class Comensal {
     private final int id;
     private boolean atendido;
     private Orden orden;
+    private int mesaId;
 
     public Comensal(int id) {
         this.id = id;
@@ -12,6 +13,14 @@ public class Comensal {
 
     public int getId() {
         return id;
+    }
+
+    public int getMesaId(){
+        return mesaId;
+    }
+
+    public void setMesaId(int mesaId){
+        this.mesaId = mesaId;
     }
 
     public boolean isAtendido() {
