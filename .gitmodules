@@ -1,0 +1,3 @@
+[submodule "src/main/java/com/simulation/restaurant/infrastructure/ui"]
+	path = src/main/java/com/simulation/restaurant/infrastructure/ui
+	url = https://github.com/Norhan15/Front-simulador_restaurant.git
