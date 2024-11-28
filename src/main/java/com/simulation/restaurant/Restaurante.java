@@ -21,9 +21,11 @@ public class Restaurante {
 
     private final DistribucionPoisson distribucionPoisson;
 
+    private EventBus eventBus;
+
     private int comensalId;
 
-    public Restaurante(int capacidad, int numMeseros, int numCocineros, int maximoComensales) {
+    public Restaurante(int capacidad, int numMeseros, int numCocineros, int maximoComensales, EventBus eventBus) {
         this.comensalesEnEspera = new LinkedBlockingQueue<>();
         this.comensalesEnMesas = new LinkedBlockingQueue<>();
         this.mesas = new ArrayList<>(Collections.nCopies(capacidad, false)); // Todas las mesas libres
@@ -31,6 +33,7 @@ public class Restaurante {
         this.bufferComidas = new LinkedBlockingQueue<>();
         this.maximoComensales = maximoComensales;
         this.comensalId = 0;
+        this.eventBus = eventBus;
 
         List<Mesero> meseros = new ArrayList<>();
         for (int i = 0; i < numMeseros; i++) {
@@ -42,9 +45,9 @@ public class Restaurante {
             cocineros.add(new Cocinero(i + 1));
         }
 
-        this.comensalService = new ComensalService(comensalesEnEspera, comensalesEnMesas, mesas);
-        this.cocineroService = new CocineroService(cocineros, bufferOrdenes, bufferComidas);
-        this.meseroService = new MeseroService(meseros, bufferOrdenes, comensalesEnMesas, bufferComidas, comensalService);
+        this.comensalService = new ComensalService(comensalesEnEspera, comensalesEnMesas, mesas, eventBus);
+        this.cocineroService = new CocineroService(cocineros, bufferOrdenes, bufferComidas, eventBus);
+        this.meseroService = new MeseroService(meseros, bufferOrdenes, comensalesEnMesas, bufferComidas, comensalService, eventBus);
 
         this.distribucionPoisson = new DistribucionPoisson(2.0);
     }

@@ -31,12 +31,6 @@ public class Mesero {
     public void atenderComensal(Comensal comensal) {
         this.comensalActual = comensal;
         this.ocupado = true;
-    
-        try {
-            Thread.sleep(1000); // Pausa de 1 segundo (1000 milisegundos)
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     public Orden generarOrden(int idMesa) {

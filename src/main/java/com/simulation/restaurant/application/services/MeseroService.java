@@ -11,13 +11,15 @@ public class MeseroService {
     private final Queue<Comida> bufferComidas;
     private final Queue<Comensal> comensalesEnMesas;
     private final ComensalService comensalService;
+    private EventBus eventBus;
 
-    public MeseroService(List<Mesero> meseros, Queue<Orden> bufferOrdenes, Queue<Comensal> comensalesEnMesas, Queue<Comida> bufferComidas, ComensalService comensalService) {
+    public MeseroService(List<Mesero> meseros, Queue<Orden> bufferOrdenes, Queue<Comensal> comensalesEnMesas, Queue<Comida> bufferComidas, ComensalService comensalService, EventBus eventBus) {
         this.meseros = meseros;
         this.bufferOrdenes = bufferOrdenes;
         this.bufferComidas = bufferComidas;
         this.comensalesEnMesas = comensalesEnMesas;
         this.comensalService = comensalService;
+        this.eventBus = eventBus;
     }
 
     public void iniciarMeseros() {
@@ -45,7 +47,15 @@ public class MeseroService {
             if (!mesero.isOcupado()) {
                 Comensal comensal = comensalesEnMesas.poll(); // Obtener el próximo comensal
                 System.out.println("Mesero " + mesero.getId() + " atendiendo al comensal " + comensal.getId() + " (1 seg)");
+                
                 mesero.atenderComensal(comensal);
+                eventBus.notifyObservers("ATTEND_CLIENT", mesero);
+                try {
+                    Thread.sleep(1000); // Pausa de 1 segundo (1000 milisegundos)
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                
                 Orden orden = mesero.generarOrden(comensal.getMesaId());
     
                 agregarOrdenAlBuffer(orden);
@@ -94,6 +104,7 @@ public class MeseroService {
     
     private void servirComidaAlComensal(Mesero mesero, Comida comidaLista) {
         Comensal comensal = mesero.getComensalActual();
+        eventBus.notifyObservers("SERVE_DISH", mesero);
         System.out.println("!!! Mesero " + mesero.getId() + " sirvió la comida al comensal " + comensal.getId());
     
         mesero.servirComida(); // Marcar al mesero como desocupado

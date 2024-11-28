@@ -10,11 +10,13 @@ public class ComensalService {
     private final Queue<Comensal> comensalesEnEspera;
     private final Queue<Comensal> comensalesEnMesas;
     private final List<Boolean> mesas;
+    private final EventBus eventBus;
 
-    public ComensalService(Queue<Comensal> comensalesEnEspera, Queue<Comensal> comensalesEnMesas, List<Boolean> mesas) {
+    public ComensalService(Queue<Comensal> comensalesEnEspera, Queue<Comensal> comensalesEnMesas, List<Boolean> mesas, EventBus eventBus) {
         this.comensalesEnEspera = comensalesEnEspera;
         this.comensalesEnMesas = comensalesEnMesas;
         this.mesas = mesas;
+        this.eventBus = eventBus;
     }
     /**
      * Procesa la llegada de un comensal al restaurante.
@@ -32,11 +34,16 @@ public class ComensalService {
                     }
 
                     Comensal comensal = comensalesEnEspera.poll(); // Sacar al primer comensal en espera
+
+                    eventBus.notifyObservers("NEW_QUEUE_COMENSAL", comensal);
+
                     int mesaId = asignarMesa();
 
                     if (mesaId != -1) { // Si hay una mesa disponible
                         System.out.println("Recepcionista asignó mesa " + mesaId + " al comensal " + comensal.getId());
                         comensal.setMesaId(mesaId);
+
+                        eventBus.notifyObservers("NEW_COMENSAL", comensal);
 
                         synchronized (comensalesEnMesas) {
                             comensalesEnMesas.add(comensal); // Mover al comensal a la cola de mesas
@@ -94,6 +101,7 @@ public class ComensalService {
             // Liberar la mesa después de comer
             liberarMesa(comensal.getMesaId());
             synchronized (comensalesEnMesas) {
+                eventBus.notifyObservers("EXIT_COMENSAL", comensal);
                 comensalesEnMesas.remove(comensal); // El comensal deja la mesa
                 comensalesEnMesas.notifyAll(); // Notificar a los meseros de que hay menos comensales en mesas
             }
