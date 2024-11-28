@@ -16,27 +16,37 @@ public class ComensalService {
         this.comensalesEnMesas = comensalesEnMesas;
         this.mesas = mesas;
     }
-
     /**
      * Procesa la llegada de un comensal al restaurante.
      */
-    public void procesarLlegadaComensales(Comensal comensal) {
+    public void iniciarRecepcionista() {
         new Thread(() -> {
-            synchronized (mesas) {
-                int idMesa = asignarMesa();
-                if (idMesa != -1) {
-                    System.out.println("Recepcionista asignó mesa " + idMesa + " al comensal " + comensal.getId());
-                    comensal.setMesaId(idMesa);
-                    synchronized (comensalesEnMesas) {
-                        comensalesEnMesas.add(comensal); // Comensal entra a una mesa
-                        comensalesEnMesas.notifyAll(); // Notificar a los meseros que hay un comensal en una mesa
+            while (true) {
+                synchronized (comensalesEnEspera) {
+                    while (comensalesEnEspera.isEmpty()) {
+                        try {
+                            comensalesEnEspera.wait(); // Esperar si no hay comensales en espera
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
                     }
-                    iniciarCicloDeComida(comensal);
-                } else {
-                    System.out.println("No hay mesas disponibles para el comensal " + comensal.getId());
-                    synchronized (comensalesEnEspera) {
-                        comensalesEnEspera.add(comensal); // Comensal entra en espera
-                        comensalesEnEspera.notifyAll(); // Notificar que hay un comensal en espera
+
+                    Comensal comensal = comensalesEnEspera.poll(); // Sacar al primer comensal en espera
+                    int mesaId = asignarMesa();
+
+                    if (mesaId != -1) { // Si hay una mesa disponible
+                        System.out.println("Recepcionista asignó mesa " + mesaId + " al comensal " + comensal.getId());
+                        comensal.setMesaId(mesaId);
+
+                        synchronized (comensalesEnMesas) {
+                            comensalesEnMesas.add(comensal); // Mover al comensal a la cola de mesas
+                            comensalesEnMesas.notifyAll(); // Notificar a los meseros que hay un nuevo comensal
+                        }
+                    } else {
+                        synchronized (comensalesEnEspera) {
+                            //System.out.println("No hay mesas disponibles para el comensal " + comensal.getId());
+                            comensalesEnEspera.add(comensal); // Regresar al comensal a la cola de espera
+                        }
                     }
                 }
             }
@@ -69,11 +79,11 @@ public class ComensalService {
     /**
      * Ciclo de vida de un comensal: comer y liberar la mesa.
      */
-    private void iniciarCicloDeComida(Comensal comensal) {
+    public void iniciarCicloDeComida(Comensal comensal) {
         new Thread(() -> {
             try {
                 // Tiempo aleatorio para simular el tiempo de comida
-                int tiempoComida = new Random().nextInt(5) + 3; // 3 a 5 segundos
+                int tiempoComida = new Random().nextInt(5) + 3; // 3 a 7 segundos
                 System.out.println("Comensal " + comensal.getId() + " está comiendo en la mesa " + comensal.getMesaId() +
                         " durante " + tiempoComida + " segundos.");
                 Thread.sleep(tiempoComida * 1000L); // Simulación de tiempo de comida

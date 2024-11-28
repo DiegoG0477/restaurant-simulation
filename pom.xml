@@ -90,7 +90,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.0</version>
                 <configuration>
-                    <mainClass>com.simulation.restaurant.Simulador</mainClass>
+                    <mainClass>com.simulation.restaurant.App</mainClass>
                     <arguments>
                         <argument>argument1</argument>
                     </arguments>

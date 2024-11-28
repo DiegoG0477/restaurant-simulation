@@ -28,11 +28,15 @@ public class CocineroService {
                                 Thread.currentThread().interrupt();
                             }
                         }
-                        Orden orden = bufferOrdenes.poll(); // Tomar la orden
-                        cocinero.prepararOrden();
-                        synchronized (bufferComidas) {
-                            bufferComidas.add(new Comida(orden));
-                            bufferComidas.notifyAll(); // Notificar que hay comida lista
+                       
+                        if (!cocinero.isOcupado()){
+                            Orden orden = bufferOrdenes.poll(); // Tomar la orden
+                            cocinero.prepararOrden();
+                            synchronized (bufferComidas) {
+                                bufferComidas.add(new Comida(orden));
+                                System.out.println("Platillo de la orden " + orden.getId() + " listo para la mesa " + orden.getIdMesa());
+                                bufferComidas.notifyAll(); // Notificar que hay comida lista
+                            }
                         }
                     }
                 }

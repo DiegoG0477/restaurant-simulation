@@ -1,5 +1,7 @@
 package com.simulation.restaurant.domain;
 
+import java.util.Random;
+
 public class Cocinero {
     private final int id;
     private boolean ocupado;
@@ -18,19 +20,18 @@ public class Cocinero {
     }
 
     public void prepararOrden() {
-
         ocupado = true;
-        //Orden orden = bufferOrdenes.poll();
-        // Simulación de la preparación
+        Random random = new Random();
+        int tiempoCoccion = random.nextInt(3001) + 3000; // Genera un número entre 3000 y 6000
+        System.out.println("Cocinero " + id + " cocinando por " + (tiempoCoccion / 1000) + " segundos");
         try {
-            Thread.sleep(1000); // Simulación del tiempo de cocción
+            Thread.sleep(tiempoCoccion);
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            e.printStackTrace();
+            Thread.currentThread().interrupt(); // Propagate the interrupt
         }
-        //bufferComidas.add(new Comida(orden));
         ocupado = false;
     }
-
     @Override
     public String toString() {
         return "Cocinero{id=" + id + ", ocupado=" + ocupado + "}";
